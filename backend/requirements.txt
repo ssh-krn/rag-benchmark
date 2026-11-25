@@ -19,6 +19,11 @@ rank-bm25>=0.2.2
 flashrank>=0.2.8
 sentence-transformers>=3.0.0
 
+# Offline ingestion script only (scripts/offline_ingest_chroma.py) — not
+# imported by the FastAPI app itself
+pypdf>=5.0.0
+langchain-text-splitters>=0.3.0
+
 networkx>=3.3
 
 deepeval>=1.0.0

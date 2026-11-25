@@ -13,10 +13,20 @@ cp .env.example .env   # then fill in GROQ_API_KEY / GEMINI_API_KEY / TAVILY_API
 ```
 
 Pre-populate `./chroma_db` (ChromaDB) and `./lightrag_graphs/*.graphml` yourself
-offline — this backend never ingests data. To build a LightRAG graph from an
-existing ChromaDB collection:
+offline — this backend never ingests data via its API. Two standalone CLI
+scripts handle this (neither is imported by `app/`, so they don't violate the
+no-ingestion-endpoint constraint):
 
 ```bash
+# 1. Chunk PDFs/txt/md and load them into ChromaDB. Reuses the backend's own
+#    embedding singleton (app/core/embeddings.py) so ingestion-time and
+#    query-time vectors are produced by the exact same model/config.
+python scripts/offline_ingest_chroma.py --input ./docs/ml-foundation \
+    --collection ml-foundation
+# add --dry-run to preview chunking first, --reset to rebuild from scratch
+
+# 2. Build a LightRAG knowledge graph from an existing ChromaDB collection
+#    (run this after step 1).
 python scripts/offline_build_graph.py --collection ml-foundation \
     --output ./lightrag_graphs/ml-foundation_graph.graphml
 ```
