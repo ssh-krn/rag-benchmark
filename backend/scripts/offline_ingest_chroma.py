@@ -13,16 +13,16 @@ ingestion and querying silently produces garbage similarity scores — there's
 no error, just bad retrieval).
 
 Usage:
-    python scripts/offline_ingest_chroma.py --input ./docs/ml-foundation \
-        --collection ml-foundation
+    python scripts/offline_ingest_chroma.py --input ./docs/machine-learning \
+        --collection machine-learning
 
     # Re-ingest from scratch (drops and recreates the collection first):
-    python scripts/offline_ingest_chroma.py --input ./docs/ml-foundation \
-        --collection ml-foundation --reset
+    python scripts/offline_ingest_chroma.py --input ./docs/machine-learning \
+        --collection machine-learning --reset
 
     # Preview chunking without writing anything:
-    python scripts/offline_ingest_chroma.py --input ./docs/ml-foundation \
-        --collection ml-foundation --dry-run
+    python scripts/offline_ingest_chroma.py --input ./docs/machine-learning \
+        --collection machine-learning --dry-run
 """
 from __future__ import annotations
 

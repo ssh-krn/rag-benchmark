@@ -21,14 +21,14 @@ no-ingestion-endpoint constraint):
 # 1. Chunk PDFs/txt/md and load them into ChromaDB. Reuses the backend's own
 #    embedding singleton (app/core/embeddings.py) so ingestion-time and
 #    query-time vectors are produced by the exact same model/config.
-python scripts/offline_ingest_chroma.py --input ./docs/ml-foundation \
-    --collection ml-foundation
+python scripts/offline_ingest_chroma.py --input ./docs/machine-learning \
+    --collection machine-learning
 # add --dry-run to preview chunking first, --reset to rebuild from scratch
 
 # 2. Build a LightRAG knowledge graph from an existing ChromaDB collection
 #    (run this after step 1).
-python scripts/offline_build_graph.py --collection ml-foundation \
-    --output ./lightrag_graphs/ml-foundation_graph.graphml
+python scripts/offline_build_graph.py --collection machine-learning \
+    --output ./lightrag_graphs/machine-learning_graph.graphml
 ```
 
 For Ollama `:cloud` models, either run `ollama signin` once (local daemon

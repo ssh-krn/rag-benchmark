@@ -1,23 +1,23 @@
 // src/components/ChatPanel.tsx
-import { useEffect, useRef, useState } from "react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import remarkMath from "remark-math";
-import rehypeKatex from "rehype-katex";
-import { motion } from "framer-motion";
-import {
-  Send,
-  Copy,
-  FileJson,
-  Terminal,
-  Trash2,
-  RotateCcw,
-  AlertTriangle,
-  Loader2,
-  Sparkles,
-} from "lucide-react";
 import type { ChatMessage, RagMode } from "@/types/rag";
 import { RAG_MODE_LABELS } from "@/types/rag";
+import { motion } from "framer-motion";
+import {
+  AlertTriangle,
+  Copy,
+  FileJson,
+  Loader2,
+  RotateCcw,
+  Send,
+  Sparkles,
+  Terminal,
+  Trash2,
+} from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import rehypeKatex from "rehype-katex";
+import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
 import { ExecutionTraceBar } from "./ExecutionTraceBar";
 import { LatencyWaterfall } from "./LatencyWaterfall";
 
@@ -210,6 +210,13 @@ export function ChatPanel({ messages, isStreaming, onSend, onRetry, onClear, mod
 
   return (
     <div className="flex h-full flex-col">
+      <div className="mx-auto mt-4 max-w-xl rounded-xl border border-[color:var(--color-border)] bg-[color:var(--color-panel)]/70 px-3.5 py-2.5 text-left text-xs text-[color:var(--color-ink-dim)]">
+        <span className="font-medium text-[color:var(--color-signal)]">Note:</span>{" "}
+        Uploading new PDFs is disabled due to local compute (CPU/GPU) and free-tier API limits. 
+        Retrieval is currently scoped to the pre-indexed{" "}
+        <span className="text-[color:var(--color-ink)]">Hundred-Page Machine Learning Book</span>{" "}
+        corpus.
+      </div>
       <div ref={scrollRef} className="flex-1 space-y-5 overflow-y-auto px-5 py-5">
         {messages.length === 0 && (
           <div className="mx-auto max-w-2xl pt-10 text-center">

@@ -27,11 +27,12 @@ class Settings(BaseSettings):
     OLLAMA_LIGHTRAG_MODEL: str = "deepseek-v4.1-flash:cloud"
     OLLAMA_JUDGE_FALLBACK_MODEL: str = "deepseek-v4.1-flash:cloud"
     OLLAMA_COOLDOWN_SECONDS: int = 300
+    OLLAMA_LOCAL_MODEL: str = "qwen2.5:3b"
 
     # ---- Verified free-tier model preferences ----
     GROQ_REASONING_MODEL: str = "openai/gpt-oss-120b"
-    GROQ_REASONING_MODEL_FALLBACKS: List[str] = ["qwen/qwen3.8-27b", "openai/gpt-oss-20b"]
-    GROQ_FAST_GRADER_MODEL: str = "llama-3.1-8b-instant"
+    GROQ_REASONING_MODEL_FALLBACKS: List[str] = ["openai/gpt-oss-20b"]
+    GROQ_FAST_GRADER_MODEL: str = "openai/gpt-oss-20b"
     GEMINI_FALLBACK_MODEL: str = "gemini-3.8-flash"
     GEMINI_FALLBACK_MODEL_CHAIN: List[str] = ["gemini-3.8-flash", "gemini-2.5-flash", "gemini-2.5-flash-lite"]
     OLLAMA_CLOUD_MODEL_CHAIN: List[str] = [
@@ -42,9 +43,9 @@ class Settings(BaseSettings):
 
     # ---- Storage paths (pre-populated offline) ----
     CHROMA_DIR: str = "./chroma_db"
-    DEFAULT_COLLECTION_NAME: str = "ml-foundation"
+    DEFAULT_COLLECTION_NAME: str = "machine-learning"
     GRAPH_DIR: str = "./lightrag_graphs"
-    DEFAULT_GRAPH_NAME: str = "ml-foundation_graph.graphml"
+    DEFAULT_GRAPH_NAME: str = "machine-learning_graph.graphml"
 
     # ---- Local embeddings / reranker ----
     EMBEDDING_MODEL_NAME: str = "sentence-transformers/all-MiniLM-L6-v2"

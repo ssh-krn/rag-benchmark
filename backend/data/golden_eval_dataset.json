@@ -1,7 +1,7 @@
 {
   "dataset_name": "ml_systems_multi_rag_benchmark_v1",
-  "collection_name": "ml-foundation",
-  "graph_name": "ml-foundation_graph.graphml",
+  "collection_name": "machine-learning",
+  "graph_name": "machine-learning_graph.graphml",
   "goldens": [
     {
       "id": "eval_001",

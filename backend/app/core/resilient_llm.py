@@ -208,6 +208,41 @@ def build_candidate_chain(role: str = "reasoning") -> List[ModelCandidate]:
         + _build_ollama_cloud_candidates(role)
     )
 
+def _build_ollama_local_candidates(models: List[str], base_url: Optional[str] = None) -> List[ModelCandidate]:
+    """Genuinely local Ollama models (no `:cloud` suffix) — always talks to
+    the local daemon directly, ignoring OLLAMA_API_KEY's cloud-routing
+    override entirely. Requires `ollama pull <model>` to have been run."""
+    from langchain_ollama import ChatOllama
+
+    settings = get_settings()
+    url = base_url or settings.OLLAMA_BASE_URL
+    candidates = []
+    for m in models:
+        candidates.append(
+            ModelCandidate(
+                provider="ollama_local",
+                model_name=m,
+                factory=lambda m=m: ChatOllama(model=m, base_url=url, timeout=settings.LLM_TIMEOUT_SECONDS),
+            )
+        )
+    return candidates
+
+
+def build_local_ollama_router(
+    models: Optional[List[str]] = None,
+    base_url: Optional[str] = None,
+    role: str = "reasoning",
+) -> "ResilientChatRouter":
+    """Router restricted to local Ollama model(s) ONLY — no Groq, no Gemini,
+    no Ollama :cloud fallback. For offline tooling (e.g.
+    scripts/offline_build_graph.py) that should never touch a rate-limited
+    or paywalled API at all. Pass multiple `models` to fail over between
+    several locally-pulled models (e.g. a 14B model then a smaller 7B one)."""
+    settings = get_settings()
+    model_list = models or [settings.OLLAMA_LOCAL_MODEL]
+    candidates = _build_ollama_local_candidates(model_list, base_url=base_url)
+    return ResilientChatRouter(role=role, candidates=candidates)
+
 
 # ---------------------------------------------------------------------------
 # Resilient router: handles retries + failover for plain chat invocations

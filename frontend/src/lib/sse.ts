@@ -24,8 +24,9 @@ const VALID_EVENTS: SSEEventName[] = ["trace", "context", "token", "final", "err
  */
 function parseBuffer(buffer: string): { frames: ParsedSSEFrame[]; remainder: string } {
   const frames: ParsedSSEFrame[] = [];
-  const blocks = buffer.split("\n\n");
-  // The final block may be incomplete (no trailing blank line yet) — keep it as remainder.
+  // Normalize CRLF (\r\n) from sse-starlette / FastAPI to LF (\n)
+  const normalized = buffer.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+  const blocks = normalized.split("\n\n");
   const remainder = blocks.pop() ?? "";
 
   for (const block of blocks) {
@@ -33,7 +34,8 @@ function parseBuffer(buffer: string): { frames: ParsedSSEFrame[]; remainder: str
     let eventName: SSEEventName = "token";
     const dataLines: string[] = [];
 
-    for (const line of block.split("\n")) {
+    for (const rawLine of block.split("\n")) {
+      const line = rawLine.trim();
       if (line.startsWith("event:")) {
         const name = line.slice(6).trim() as SSEEventName;
         if (VALID_EVENTS.includes(name)) eventName = name;
@@ -41,6 +43,8 @@ function parseBuffer(buffer: string): { frames: ParsedSSEFrame[]; remainder: str
         dataLines.push(line.slice(5).trim());
       }
     }
+
+    if (dataLines.length === 0) continue;
 
     const raw = dataLines.join("\n");
     let data: unknown = raw;
