@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import json
 import re
-from typing import Any, Dict, List, Optional, TypedDict
+from typing import Any, Dict, List, Optional, Tuple, TypedDict
 
 from app.config import get_settings
 from app.core.graph_store import get_graph_store_manager
@@ -37,6 +37,8 @@ where relevant."""
 class LightRAGState(TypedDict):
     query: str
     graph_name: Optional[str]
+    prompt_top_k: Optional[int]
+    prompt_char_limit: Optional[int]
     keywords: List[str]
     matched_entities: List[str]
     subgraph_nodes: List[Dict[str, Any]]
@@ -103,10 +105,37 @@ async def node_graph_traversal(state: LightRAGState) -> LightRAGState:
 
 async def node_synthesize(state: LightRAGState) -> LightRAGState:
     router = ResilientChatRouter(role="reasoning")
-    entities_block = "\n".join(f"- {n['id']}: {n.get('description', '')}" for n in state["subgraph_nodes"][:30])
-    relations_block = "\n".join(
-        f"- {e['source']} --[{e.get('relation', 'related_to')}]--> {e['target']}" for e in state["subgraph_edges"][:40]
-    )
+    top_k = state.get("prompt_top_k")
+    char_limit = state.get("prompt_char_limit")
+
+    max_nodes = max(top_k * 3, 8) if top_k is not None else 30
+    max_edges = max(top_k * 4, 12) if top_k is not None else 40
+
+    entities_lines: List[str] = []
+    for n in state["subgraph_nodes"][:max_nodes]:
+        desc = str(n.get("description", "") or "")
+        if char_limit is not None and len(desc) > char_limit:
+            desc = desc[:char_limit] + "..."
+        entities_lines.append(f"- {n['id']}: {desc}")
+    entities_block = "\n".join(entities_lines)
+
+    seen_triples: set[Tuple[str, str, str]] = set()
+    relations_lines: List[str] = []
+    for e in state["subgraph_edges"]:
+        rel = e.get("relation", "related_to")
+        triple = (str(e["source"]), str(rel), str(e["target"]))
+        if triple in seen_triples:
+            continue
+        seen_triples.add(triple)
+        edge_desc = str(e.get("description", "") or "")
+        if char_limit is not None and len(edge_desc) > 120:
+            edge_desc = edge_desc[:120] + "..."
+        suffix = f": {edge_desc}" if edge_desc else ""
+        relations_lines.append(f"- {triple[0]} --[{triple[1]}]--> {triple[2]}{suffix}")
+        if len(relations_lines) >= max_edges:
+            break
+    relations_block = "\n".join(relations_lines)
+
     prompt = (
         f"{SYNTHESIS_SYSTEM_PROMPT}\n\nMatched entities:\n{entities_block}\n\n"
         f"Relationships:\n{relations_block}\n\nQuestion: {state['query']}"
@@ -122,10 +151,17 @@ async def node_synthesize(state: LightRAGState) -> LightRAGState:
     return state
 
 
-async def run_lightrag(query: str, graph_name: Optional[str] = None) -> ChatResponse:
+async def run_lightrag(
+    query: str,
+    graph_name: Optional[str] = None,
+    prompt_top_k: Optional[int] = None,
+    prompt_char_limit: Optional[int] = None,
+) -> ChatResponse:
     state: LightRAGState = {
         "query": query,
         "graph_name": graph_name,
+        "prompt_top_k": prompt_top_k,
+        "prompt_char_limit": prompt_char_limit,
         "keywords": [],
         "matched_entities": [],
         "subgraph_nodes": [],

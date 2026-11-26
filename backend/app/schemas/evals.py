@@ -18,7 +18,7 @@ class EvalStatus(str, Enum):
 
 
 class EvalRunRequest(BaseModel):
-    dataset_path: str = Field(default="./data/golden_eval_dataset.json")
+    dataset_path: str = Field(default="./data/eval_dataset_mini.json")
     target_modes: Optional[List[str]] = None  # defaults to each golden's own target_modes
     resume_run_id: Optional[str] = None
     batch_size: Optional[int] = None

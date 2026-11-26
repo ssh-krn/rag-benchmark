@@ -1,0 +1,8 @@
+{
+  "status": "running",
+  "started_at": "2026-11-26T12:59:31Z",
+  "updated_at": "2026-11-26T13:03:06Z",
+  "dataset_path": "data/eval_dataset_mini.json",
+  "total": 75,
+  "live_mode": false
+}

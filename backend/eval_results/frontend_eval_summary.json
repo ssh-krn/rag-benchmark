@@ -1,0 +1,16 @@
+{
+  "generated_at": "2026-11-26T07:03:40.398866+00:00",
+  "run_id": "20261126-122337-c0536e61",
+  "corpus": {
+    "title": "The Hundred-Page Machine Learning Book",
+    "author": "Andriy Burkov",
+    "collection_name": "machine-learning",
+    "chunks": 376,
+    "graph_nodes": 2188,
+    "graph_edges": 1989
+  },
+  "dataset_size": 15,
+  "judge_role": "eval_judge (Gemini -> Mistral -> Groq -> Ollama)",
+  "strategies": {},
+  "sample_comparisons": []
+}

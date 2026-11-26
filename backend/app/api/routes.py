@@ -7,6 +7,8 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import os
+import tempfile
 from typing import Any, Dict, Optional
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException
@@ -17,17 +19,21 @@ from app.core.graph_store import get_graph_store_manager
 from app.core.model_validator import get_cached_or_refresh_report
 from app.core.resilient_llm import COOLDOWNS
 from app.core.vector_store import get_vector_store_manager
+from app.evals.checkpoint_manager import new_run_id
 from app.evals.runner import get_checkpoint, run_benchmark
 from app.graphs.agentic_rag import run_agentic_rag
 from app.graphs.corrective_rag import run_corrective_rag
 from app.graphs.hybrid_rag import run_hybrid_rag
 from app.graphs.lightrag import run_lightrag
 from app.graphs.traditional_rag import run_traditional_rag
-from app.schemas.chat import ChatRequest, ChatResponse, RagMode, SSEEvent
+from app.schemas.chat import ChatRequest, ChatResponse, RagMode
 from app.schemas.evals import CheckpointReport, EvalRunRequest
 
 logger = logging.getLogger("routes")
 router = APIRouter()
+
+_LIVE_EVAL_SEMAPHORE = asyncio.Semaphore(1)
+FRONTEND_EVAL_SUMMARY_PATH = "./eval_results/frontend_eval_summary.json"
 
 MODE_DISPATCH = {
     RagMode.TRADITIONAL_RAG: lambda req: run_traditional_rag(req.query, collection_name=req.collection_name),
@@ -40,7 +46,6 @@ MODE_DISPATCH = {
 
 @router.get("/api/health")
 async def health():
-    settings = get_settings()
     vector_health = get_vector_store_manager().health()
     graph_health = get_graph_store_manager().health()
     verification = await get_cached_or_refresh_report()
@@ -87,8 +92,6 @@ async def chat_stream(req: ChatRequest):
             for step in response.execution_trace:
                 yield {"event": "trace", "data": step.model_dump_json()}
             yield {"event": "context", "data": json.dumps([c.model_dump() for c in response.retrieved_context], default=str)}
-            # Stream the final answer as a single token chunk (true token streaming
-            # would require per-provider streaming callbacks wired into each graph).
             yield {"event": "token", "data": json.dumps({"text": response.answer})}
             yield {"event": "final", "data": response.model_dump_json()}
         except Exception as exc:  # noqa: BLE001
@@ -98,21 +101,77 @@ async def chat_stream(req: ChatRequest):
     return EventSourceResponse(event_generator())
 
 
+async def _guarded_live_eval_task(
+    dataset_path: str,
+    target_modes: Optional[list[str]],
+    resume_run_id: str,
+    batch_size: Optional[int],
+    sleep_between_batches: Optional[float],
+    cleanup_temp_path: Optional[str] = None,
+) -> None:
+    try:
+        async with _LIVE_EVAL_SEMAPHORE:
+            await run_benchmark(
+                dataset_path=dataset_path,
+                target_modes=target_modes,
+                resume_run_id=resume_run_id,
+                batch_size=batch_size,
+                sleep_between_batches=sleep_between_batches,
+                live_mode=True,
+            )
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("Guarded live eval encountered an error: %s", exc)
+    finally:
+        if cleanup_temp_path and os.path.exists(cleanup_temp_path):
+            try:
+                os.remove(cleanup_temp_path)
+            except OSError:
+                pass
+
+
 @router.post("/api/evals/run")
 async def start_eval_run(req: EvalRunRequest, background_tasks: BackgroundTasks):
-    from app.evals.runner import new_run_id
-    from app.evals.checkpoint_manager import CheckpointManager
+    if _LIVE_EVAL_SEMAPHORE.locked():
+        raise HTTPException(
+            status_code=429,
+            detail="A live evaluation is already in progress. Please view the pre-computed golden benchmark or retry in a moment.",
+        )
+
+    # Guardrail: cap live browser-triggered evaluations to 1 question & at most 2 strategies
+    capped_modes = (req.target_modes or ["traditional_rag"])[:2]
+    dataset_path = req.dataset_path
+    temp_dataset_path: Optional[str] = None
+
+    if os.path.exists(dataset_path):
+        try:
+            with open(dataset_path, "r", encoding="utf-8") as f:
+                raw_ds = json.load(f)
+            goldens = raw_ds.get("goldens", [])
+            if len(goldens) > 1:
+                sliced_ds = {**raw_ds, "goldens": goldens[:1]}
+                fd, temp_dataset_path = tempfile.mkstemp(prefix="live_eval_", suffix=".json")
+                with os.fdopen(fd, "w", encoding="utf-8") as tf:
+                    json.dump(sliced_ds, tf)
+                dataset_path = temp_dataset_path
+        except Exception:  # noqa: BLE001
+            pass
 
     run_id = req.resume_run_id or new_run_id()
     background_tasks.add_task(
-        run_benchmark,
-        dataset_path=req.dataset_path,
-        target_modes=req.target_modes,
+        _guarded_live_eval_task,
+        dataset_path=dataset_path,
+        target_modes=capped_modes,
         resume_run_id=run_id,
-        batch_size=req.batch_size,
-        sleep_between_batches=req.sleep_between_batches,
+        batch_size=1,
+        sleep_between_batches=max(req.sleep_between_batches or 1.5, 1.5),
+        cleanup_temp_path=temp_dataset_path,
     )
-    return {"run_id": run_id, "status": "started"}
+    return {
+        "run_id": run_id,
+        "status": "started",
+        "capped_modes": capped_modes,
+        "live_guardrail": "Scoped to 1 question and Faithfulness + AnswerRelevancy metrics to protect free-tier quotas.",
+    }
 
 
 @router.get("/api/evals/runs/{run_id}", response_model=CheckpointReport)
@@ -121,3 +180,15 @@ async def get_eval_run(run_id: str):
     meta = checkpoint.read_meta()
     total = meta.get("total", 0)
     return checkpoint.build_report(total=total)
+
+
+@router.get("/api/evals/summary")
+@router.get("/api/eval/summary")
+async def get_precomputed_eval_summary():
+    if not os.path.exists(FRONTEND_EVAL_SUMMARY_PATH):
+        raise HTTPException(
+            status_code=404,
+            detail="Pre-computed benchmark summary not found yet. Run `python -m app.evals.runner` first.",
+        )
+    with open(FRONTEND_EVAL_SUMMARY_PATH, "r", encoding="utf-8") as f:
+        return json.load(f)

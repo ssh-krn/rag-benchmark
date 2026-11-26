@@ -9,10 +9,11 @@ Data source: ChromaDB chunks only.
 """
 from __future__ import annotations
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from app.config import get_settings
 from app.core.resilient_llm import get_chat_model
+from app.graphs._prompt_budget import budget_passages
 from app.schemas.chat import ChatResponse, ExecutionStep, RagMode, SourceMetadata
 from app.tools.chroma_search import search_chunks_with_metadata
 
@@ -28,7 +29,15 @@ def _build_context_block(passages: List[SourceMetadata]) -> str:
     return "\n\n".join(lines)
 
 
-async def run_traditional_rag(query: str, collection_name: str | None = None) -> ChatResponse:
+async def run_traditional_rag(
+    query: str,
+    collection_name: str | None = None,
+    prompt_top_k: Optional[int] = None,
+    prompt_char_limit: Optional[int] = None,
+) -> ChatResponse:
+    """`prompt_top_k`/`prompt_char_limit` are internal-only knobs for the eval
+    runner's token-budget compression (see app/graphs/_prompt_budget.py).
+    Left as None (the default), live /api/chat behavior is unchanged."""
     settings = get_settings()
     trace: List[ExecutionStep] = []
 
@@ -39,7 +48,7 @@ async def run_traditional_rag(query: str, collection_name: str | None = None) ->
         detail={"k": settings.TRADITIONAL_RAG_K, "hits": len(passages)},
     ))
 
-    context_block = _build_context_block(passages)
+    context_block = _build_context_block(budget_passages(passages, prompt_top_k, prompt_char_limit))
     router = get_chat_model(role="reasoning")
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},

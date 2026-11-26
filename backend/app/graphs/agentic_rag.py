@@ -18,11 +18,10 @@ from langgraph.prebuilt import ToolNode
 
 from app.config import get_settings
 from app.core.resilient_llm import get_chat_model
+from app.graphs._prompt_budget import budget_passages
 from app.schemas.chat import ChatResponse, ExecutionStep, RagMode, SourceMetadata
-from app.tools.chroma_search import search_chunks_with_metadata
-from app.tools.web_search import web_search_with_metadata
-from app.tools.chroma_search import search_textbook_chunks
-from app.tools.web_search import search_web_tavily
+from app.tools.chroma_search import search_chunks_with_metadata, search_textbook_chunks
+from app.tools.web_search import search_web_tavily, web_search_with_metadata
 
 AGENT_SYSTEM_PROMPT = """You are an autonomous research agent. You have two tools:
 - search_textbook_chunks: search a pre-populated textbook knowledge base (ChromaDB). Prefer this first.
@@ -37,6 +36,8 @@ TOOLS = [search_textbook_chunks, search_web_tavily]
 class AgenticRagState(TypedDict):
     original_query: str
     collection_name: Optional[str]
+    prompt_top_k: Optional[int]
+    prompt_char_limit: Optional[int]
     messages: List[BaseMessage]
     tool_call_count: int
     max_tool_calls: int
@@ -76,9 +77,19 @@ async def node_agent_reasoner(state: AgenticRagState) -> AgenticRagState:
 async def node_tools(state: AgenticRagState) -> AgenticRagState:
     last_msg = state["messages"][-1]
     tool_calls = getattr(last_msg, "tool_calls", []) or []
+    prev_len = len(state["messages"])
     tool_node = ToolNode(TOOLS)
     result = await tool_node.ainvoke({"messages": state["messages"]})
     new_messages = result["messages"]
+
+    # Trim newly appended ToolMessages only when prompt_char_limit is explicitly requested (eval mode)
+    char_limit = state.get("prompt_char_limit")
+    if char_limit is not None:
+        max_tool_chars = max(char_limit * (state.get("prompt_top_k") or 3), 1200)
+        for msg in new_messages[prev_len:]:
+            if isinstance(msg, ToolMessage) and isinstance(msg.content, str) and len(msg.content) > max_tool_chars:
+                msg.content = msg.content[:max_tool_chars] + "\n...[truncated for prompt budget]"
+
     state["messages"] = new_messages
     state["tool_call_count"] += len(tool_calls)
 
@@ -100,7 +111,10 @@ async def node_tools(state: AgenticRagState) -> AgenticRagState:
 
 async def node_groundedness_audit(state: AgenticRagState) -> AgenticRagState:
     grader = get_chat_model(role="grader")
-    sources_block = "\n\n".join(f"[{i}] {s.text}" for i, s in enumerate(state["collected_sources"], start=1))
+    budgeted_sources = budget_passages(
+        state["collected_sources"], state.get("prompt_top_k"), state.get("prompt_char_limit")
+    )
+    sources_block = "\n\n".join(f"[{i}] {s.text}" for i, s in enumerate(budgeted_sources, start=1))
     prompt = (
         "You are a strict hallucination grader for an agentic RAG system. Given the gathered sources "
         "and the agent's draft answer, respond with exactly one word: 'grounded' if every claim in the "
@@ -141,7 +155,6 @@ def _route_after_agent(state: AgenticRagState) -> str:
     if tool_calls and state["tool_call_count"] < state["max_tool_calls"]:
         return "tools"
     if not state.get("final_answer"):
-        # forced to answer: strip tool_calls intent by routing straight to audit anyway
         return "audit"
     return "audit"
 
@@ -183,12 +196,19 @@ def get_compiled_graph():
     return _COMPILED_GRAPH
 
 
-async def run_agentic_rag(query: str, collection_name: str | None = None) -> ChatResponse:
+async def run_agentic_rag(
+    query: str,
+    collection_name: str | None = None,
+    prompt_top_k: Optional[int] = None,
+    prompt_char_limit: Optional[int] = None,
+) -> ChatResponse:
     settings = get_settings()
     app = get_compiled_graph()
     initial_state: AgenticRagState = {
         "original_query": query,
         "collection_name": collection_name,
+        "prompt_top_k": prompt_top_k,
+        "prompt_char_limit": prompt_char_limit,
         "messages": [],
         "tool_call_count": 0,
         "max_tool_calls": settings.AGENTIC_MAX_TOOL_CALLS,

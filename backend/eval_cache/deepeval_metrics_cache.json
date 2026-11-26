@@ -1,0 +1,272 @@
+{
+  "c6bb9b5abe267de6301e8a5a617cf92caffe92356158084c600c94d8109f8d36": [
+    {
+      "metric_name": "Faithfulness",
+      "score": 1.0,
+      "reason": "The score is 1.00 because there are no contradictions, indicating perfect faithfulness.",
+      "success": true,
+      "error": null
+    },
+    {
+      "metric_name": "Answer Relevancy",
+      "score": 1.0,
+      "reason": "The score is 1.00 because the response fully addressed the question about Andriy Burkov's definition of machine learning with no irrelevant content.",
+      "success": true,
+      "error": null
+    },
+    {
+      "metric_name": "Contextual Precision",
+      "score": 0.3333333333333333,
+      "reason": "The score is 0.33 because only one of the three ranked nodes contains the definition, and it appears as the third node. The first node is described as \"The first document talks about the book's audience and practical value, but it does not provide the definition of machine learning as a process of gathering a dataset and building a statistical model.\" The second node is \"The second document is merely a title line ('Andriy Burkov The Hundred-Page Machine Learning Book - Draft 3') and contains no definition relevant to the question.\" These two irrelevant nodes are ranked higher than the single relevant node, which is the third node that states \"The third document includes the exact definition: 'Machine learning can also be defined as the process of solving a practical problem by 1) gathering a dataset, and 2) algorithmically building a statistical model based on that dataset. That statistical model is assumed to be used somehow to solve the practical problem.'\" Because the relevant node is not in the top positions, the contextual precision remains low at 0.33.",
+      "success": false,
+      "error": null
+    },
+    {
+      "metric_name": "Contextual Recall",
+      "score": 1.0,
+      "reason": "The score is 1.00 because sentence 1 of the expected output is fully supported by node 3 in the retrieval context, matching the definition of machine learning exactly.",
+      "success": true,
+      "error": null
+    }
+  ],
+  "1099f02bbc3d556947d6f3f594599d1c7134812861fba4e6527b0f843cfa1730": [
+    {
+      "metric_name": "Faithfulness",
+      "score": 1.0,
+      "reason": "The score is 1.00 because there are no contradictions, indicating perfect faithfulness.",
+      "success": true,
+      "error": null
+    },
+    {
+      "metric_name": "Answer Relevancy",
+      "score": 1.0,
+      "reason": "The score is 1.00 because the response fully addressed the question about Andriy Burkov's definition of machine learning with no irrelevant content.",
+      "success": true,
+      "error": null
+    },
+    {
+      "metric_name": "Contextual Precision",
+      "score": 1.0,
+      "reason": "The score is 1.00 because the relevant node (rank 1) provides the exact definition\u2014\"the process of solving a practical problem by 1) gathering a dataset, and 2) algorithmically building a statistical model...\"\u2014while the irrelevant nodes (ranks 2 and 3) are clearly about unrelated topics, keeping them lower in the ranking.",
+      "success": true,
+      "error": null
+    },
+    {
+      "metric_name": "Contextual Recall",
+      "score": 1.0,
+      "reason": "The score is 1.00 because the sentence in the expected output is fully supported by node 1 in the retrieval context, matching the definition of machine learning.",
+      "success": true,
+      "error": null
+    }
+  ],
+  "33336d4c698224eb76288a06429710c6a093124d5e7f6f5cd330be5f966ff2bb": [
+    {
+      "metric_name": "Faithfulness",
+      "score": 1.0,
+      "reason": "The score is 1.00 because there are no contradictions and the output aligns perfectly with the retrieval context. Great job!",
+      "success": true,
+      "error": null
+    },
+    {
+      "metric_name": "Answer Relevancy",
+      "score": 0.0,
+      "reason": "The answer is irrelevant because it provides definitions of machine learning without addressing Andriy Burkov's specific definition or process for solving practical problems as asked in the input.",
+      "success": false,
+      "error": null
+    },
+    {
+      "metric_name": "Contextual Precision",
+      "score": 1.0,
+      "reason": "The score is 1.00 because all relevant nodes (first node) are ranked higher than the irrelevant node (third node). The first node directly addresses the process of machine learning as a process for solving a practical problem, while the third node discusses unrelated topics about incremental learning algorithms and feature examples.",
+      "success": true,
+      "error": null
+    },
+    {
+      "metric_name": "Contextual Recall",
+      "score": 1.0,
+      "reason": "The score is 1.00 because the original expected output directly matches the first sentence in the node 1.1 of the retrieval context, providing a clear and accurate definition of machine learning and its process of solving practical problems through dataset gathering and model building.",
+      "success": true,
+      "error": null
+    }
+  ],
+  "7b722b330ab5848c5b41d84952c615dc24a71b7b2fc4340dce94c2e37d1a154b": [
+    {
+      "metric_name": "Faithfulness",
+      "score": 1.0,
+      "reason": "The score is 1.00 because there are no contradictions, indicating perfect faithfulness.",
+      "success": true,
+      "error": null
+    },
+    {
+      "metric_name": "AnswerRelevancyMetric",
+      "score": null,
+      "reason": null,
+      "success": null,
+      "error": "Judge generation failed on all providers: Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m7vqbf13eytrcwpg5s6twqe1` service tier `on_demand` on tokens per minute (TPM): Limit 8000, Used 7261, Requested 1014. Please try again in 2.0625s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}"
+    },
+    {
+      "metric_name": "ContextualPrecisionMetric",
+      "score": null,
+      "reason": null,
+      "success": null,
+      "error": "Judge generation failed on all providers: None"
+    },
+    {
+      "metric_name": "ContextualRecallMetric",
+      "score": null,
+      "reason": null,
+      "success": null,
+      "error": "Judge generation failed on all providers: None"
+    }
+  ],
+  "77a071b20adbaf5cab0608109fb56b9434475162038f798ec6c7e3ebd05d8cf6": [
+    {
+      "metric_name": "Faithfulness",
+      "score": 1.0,
+      "reason": "The score is 1.00 because there are no contradictions and the output aligns perfectly with the retrieval context. Great job!",
+      "success": true,
+      "error": null
+    },
+    {
+      "metric_name": "Answer Relevancy",
+      "score": 0.3333333333333333,
+      "reason": "The score is 0.33 because the irrelevant statements are about hyperparameters and their influence, which do not directly address the difference between parameters and hyperparameters in a machine learning model as requested in the input.",
+      "success": false,
+      "error": null
+    },
+    {
+      "metric_name": "Contextual Precision",
+      "score": 0.0,
+      "reason": "The score is 0.00 because the first node (rank 1) is irrelevant \u2013 its reason says \"does not contain information about the difference between parameters and hyperparameters\" \u2013 and the same applies to the second and third nodes (ranks 2 and 3). Since all top\u2011ranked nodes are irrelevant, no relevant content is ranked higher, resulting in a contextual precision of zero.",
+      "success": false,
+      "error": null
+    },
+    {
+      "metric_name": "Contextual Recall",
+      "score": 1.0,
+      "reason": "The score is 1.00 because the single sentence in the expected output maps directly to node 1 in the retrieval context, matching the phrasing about parameters and hyperparameters perfectly.",
+      "success": true,
+      "error": null
+    }
+  ],
+  "53890c1fbb7a02c41e136e0728dc9b71a77acd1c85c155132a794b6efb858796": [
+    {
+      "metric_name": "Faithfulness",
+      "score": 1.0,
+      "reason": "The score is 1.00 because there are no contradictions with the retrieval context, indicating the `actual output` accurately reflects the provided information without any discrepancies.",
+      "success": true,
+      "error": null
+    },
+    {
+      "metric_name": "Answer Relevancy",
+      "score": 0.3333333333333333,
+      "reason": "The score is 0.33 because the provided statements are definitions of classification and regression, which are not relevant to addressing the distinction between them in the context of supervised learning. There are no relevant statements in the output to support the question asked.",
+      "success": false,
+      "error": null
+    },
+    {
+      "metric_name": "Contextual Precision",
+      "score": 1.0,
+      "reason": "The score is 1.00 because the first node (rank 1) states \"Classification is a problem of automatically assigning a label to an unlabeled example\" and \"Regression is a problem of predicting a real\u2011valued label\", directly matching the query, the second node (rank 2) repeats this key distinction, and the third node (rank 3) only discusses general supervised learning without mentioning classification versus regression. All relevant nodes are ranked above the irrelevant node, giving perfect contextual precision.",
+      "success": true,
+      "error": null
+    },
+    {
+      "metric_name": "Contextual Recall",
+      "score": 0.0,
+      "reason": "The score is 0.00 because the expected output discusses classification and regression, but does not provide any supporting context from the retrieval nodes, indicating a lack of relevant information to support the output.",
+      "success": false,
+      "error": null
+    }
+  ],
+  "af4bd736b6a4ff6f06dee3850161a623c0e50eaf9f58fc3d53f4f34fa9f55e1d": [
+    {
+      "metric_name": "Faithfulness",
+      "score": 1.0,
+      "reason": "The score is 1.00 because there are no contradictions, indicating perfect faithfulness.",
+      "success": true,
+      "error": null
+    },
+    {
+      "metric_name": "Answer Relevancy",
+      "score": 1.0,
+      "reason": "The score is 1.00 because the response directly and completely answered the question about the differences between classification and regression without any irrelevant material.",
+      "success": true,
+      "error": null
+    },
+    {
+      "metric_name": "Contextual Precision",
+      "score": 0.3333333333333333,
+      "reason": "The second and first retrieval contexts contain no information about classification or regression distinction, which are relevant to the input. The third context provides the necessary contrast between classification and regression, but it is the last relevant context in the list, hence it is ranked lower. The other two documents are not relevant to the input, but they are ranked higher than the relevant context, which is why the score is 0.33.",
+      "success": false,
+      "error": null
+    },
+    {
+      "metric_name": "Contextual Recall",
+      "score": 0.0,
+      "reason": "The score is 0.00 because the expected output discusses classification and regression, but does not provide any supporting context from the retrieval nodes, indicating a lack of relevant information to support the output.",
+      "success": false,
+      "error": null
+    }
+  ],
+  "37d7bc691bd059281a522359b1ed6e1fe24e3281d3d5aa976b64c0582af15c20": [
+    {
+      "metric_name": "Faithfulness",
+      "score": 0.75,
+      "reason": "The score is 0.75 because there are no contradictions that would reduce the faithfulness of the output to the retrieval context.",
+      "success": true,
+      "error": null
+    },
+    {
+      "metric_name": "Answer Relevancy",
+      "score": 0.5,
+      "reason": "The score is 0.50 because the irrelevant statements about regression distract from the question about the difference between classification and regression in supervised learning, which is not directly addressed in the input.",
+      "success": true,
+      "error": null
+    },
+    {
+      "metric_name": "Contextual Precision",
+      "score": 0.0,
+      "reason": "The score is 0.00 because none of the ranked nodes contain information about distinguishing classification from regression in supervised learning. For node 1, the reason states \"The provided context does not contain information about distinguishing classification from regression in supervised learning. It covers topics such as binary vs. multiclass classification, parameters, and how supervised learning works, but does not address the specific question of what distinguishes classification from regression.\" The same reasoning applies to node 2 and node 3. Since all nodes are irrelevant, no relevant nodes are ranked above irrelevant ones, resulting in a contextual precision of zero.",
+      "success": false,
+      "error": null
+    },
+    {
+      "metric_name": "Contextual Recall",
+      "score": 1.0,
+      "reason": "The score is 1.00 because sentence 1 is fully supported by node 1 and node 2 in retrieval context.",
+      "success": true,
+      "error": null
+    }
+  ],
+  "9d28b64ad387683afe49aa4dd43b570d7c758e5a3b9b8f91ba939af31133b842": [
+    {
+      "metric_name": "Faithfulness",
+      "score": 1.0,
+      "reason": "The score is 1.00 because there are no contradictions, indicating perfect faithfulness.",
+      "success": true,
+      "error": null
+    },
+    {
+      "metric_name": "Answer Relevancy",
+      "score": 1.0,
+      "reason": "The score is 1.00 because the response directly answered the question about who coined the term 'machine learning' and the year, with no irrelevant content.",
+      "success": true,
+      "error": null
+    },
+    {
+      "metric_name": "Contextual Precision",
+      "score": 1.0,
+      "reason": "The score is 1.00 because the top-ranked node (node 1) contains the relevant information: \"The first document explicitly states that \\\"Arthur Samuel, an American pioneer in the \ufb01eld of computer gaming and arti\ufb01cial intelligence, coined the term in 1959 while at IBM.\\\"\" The subsequent nodes (node 2 and node 3) are irrelevant, as their reasons state they lack the necessary details. Since all relevant nodes are ranked above all irrelevant nodes, the contextual precision reaches its maximum.",
+      "success": true,
+      "error": null
+    },
+    {
+      "metric_name": "Contextual Recall",
+      "score": 1.0,
+      "reason": "The score is 1.00 because the sentence directly matches node 1 in retrieval context, confirming the information.",
+      "success": true,
+      "error": null
+    }
+  ]
+}

@@ -10,12 +10,13 @@ Data source: ChromaDB chunks only.
 """
 from __future__ import annotations
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from app.config import get_settings
 from app.core.embeddings import rerank
 from app.core.resilient_llm import get_chat_model
 from app.core.vector_store import get_vector_store_manager
+from app.graphs._prompt_budget import budget_passages
 from app.schemas.chat import ChatResponse, ExecutionStep, RagMode, RetrievalMethod, SourceMetadata
 
 SYSTEM_PROMPT = """You are a grounded RAG assistant using hybrid (dense + lexical) retrieval.
@@ -52,7 +53,12 @@ def _build_context_block(passages: List[SourceMetadata]) -> str:
     return "\n\n".join(lines)
 
 
-async def run_hybrid_rag(query: str, collection_name: str | None = None) -> ChatResponse:
+async def run_hybrid_rag(
+    query: str,
+    collection_name: str | None = None,
+    prompt_top_k: Optional[int] = None,
+    prompt_char_limit: Optional[int] = None,
+) -> ChatResponse:
     settings = get_settings()
     trace: List[ExecutionStep] = []
     manager = get_vector_store_manager()
@@ -99,7 +105,7 @@ async def run_hybrid_rag(query: str, collection_name: str | None = None) -> Chat
         for r in reranked
     ]
 
-    context_block = _build_context_block(passages)
+    context_block = _build_context_block(budget_passages(passages, prompt_top_k, prompt_char_limit))
     router = get_chat_model(role="reasoning")
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},

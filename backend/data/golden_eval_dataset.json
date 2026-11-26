@@ -1,73 +1,97 @@
 {
-  "dataset_name": "ml_systems_multi_rag_benchmark_v1",
+  "dataset_name": "hundred_page_ml_mini_15",
   "collection_name": "machine-learning",
-  "graph_name": "machine-learning_graph.graphml",
+  "graph_name": "machine-learning_graph",
   "goldens": [
     {
-      "id": "eval_001",
-      "input": "What is the mathematical difference between L1 and L2 regularization penalties, and how does L1 induce sparsity in model weights?",
-      "expected_output": "L1 regularization (Lasso) adds the sum of the absolute values of the weights (lambda * sum(|w_i|)) to the loss function, while L2 regularization (Ridge) adds the sum of squared weights (lambda * sum(w_i^2)). Because the L1 penalty has a constant subgradient away from zero and sharp corners along the coordinate axes, optimization drives smaller weights to exactly zero, producing sparse models, whereas L2 shrinks weights proportionally toward zero without making them exact zeros.",
-      "context": [
-        "L1 regularization penalizes the L1 norm of the weight vector, encouraging sparsity by setting irrelevant feature weights to zero.",
-        "L2 regularization penalizes the squared L2 norm, shrinking weights smoothly toward zero."
-      ],
-      "additional_metadata": {
-        "category": "foundational_theory",
-        "difficulty": "easy",
-        "target_modes": ["traditional_rag", "hybrid_rag", "corrective_rag", "agentic_rag", "lightrag"]
-      }
+      "id": "sh_01",
+      "input": "How does Andriy Burkov define machine learning as a process for solving a practical problem?",
+      "expected_output": "Machine learning is defined as the process of solving a practical problem by 1) gathering a dataset, and 2) algorithmically building a statistical model based on that dataset, which is then assumed to be used somehow to solve the practical problem.",
+      "additional_metadata": { "category": "single_hop" }
     },
     {
-      "id": "eval_002",
-      "input": "How does Reciprocal Rank Fusion (RRF) combine dense vector similarity scores with BM25 lexical rankings without requiring score normalization?",
-      "expected_output": "Reciprocal Rank Fusion (RRF) merges ranked lists from multiple retrievers by computing a combined score using the formula RRF(d) = sum(1 / (k + rank_i(d))), where rank_i(d) is the document's position in retriever i and k is a smoothing constant (typically 60). Because it relies solely on ordinal rank positions rather than raw similarity or BM25 logits, it avoids the need for min-max or z-score calibration across incompatible scoring scales.",
-      "context": [
-        "RRF computes 1 / (k + r) across each retrieval system's rank order, eliminating raw score scale mismatches between BM25 and cosine similarity."
-      ],
-      "additional_metadata": {
-        "category": "exact_keyword_and_formula",
-        "difficulty": "medium",
-        "target_modes": ["traditional_rag", "hybrid_rag", "corrective_rag"]
-      }
+      "id": "sh_02",
+      "input": "Who coined the term 'machine learning' and in what year?",
+      "expected_output": "Arthur Samuel, an American pioneer in computer gaming and artificial intelligence, coined the term 'machine learning' in 1959 while at IBM.",
+      "additional_metadata": { "category": "single_hop" }
     },
     {
-      "id": "eval_003",
-      "input": "How does PyTorch's AdamW optimizer decouple weight decay from the adaptive gradient update compared to standard L2 regularization in Adam?",
-      "expected_output": "In standard Adam with L2 regularization, the L2 penalty gradient (lambda * w) is added directly to the loss gradient before computing the first and second moving averages (m_t and v_t), causing weights with large historical gradients to receive smaller effective decay. AdamW decouples weight decay by removing the L2 term from the gradient calculation and applying weight shrinkage directly to the parameters during the weight update step.",
-      "context": [
-        "Decoupled weight decay in AdamW applies shrinkage directly to weights rather than scaling it by the inverse square root of the second moment estimate."
-      ],
-      "additional_metadata": {
-        "category": "theory_plus_modern_library",
-        "difficulty": "medium",
-        "target_modes": ["corrective_rag", "agentic_rag"]
-      }
+      "id": "sh_03",
+      "input": "What is the difference between parameters and hyperparameters in a machine learning model?",
+      "expected_output": "Parameters are variables that define the model and are directly modified by the learning algorithm based on the training data, whereas hyperparameters are configuration settings chosen by the data scientist before training that control how the learning algorithm behaves and are not learned directly from the training data.",
+      "additional_metadata": { "category": "single_hop" }
     },
     {
-      "id": "eval_004",
-      "input": "Trace the architectural relationship between attention heads, layer normalization, residual connections, and feed-forward networks across a multi-layer Transformer encoder block.",
-      "expected_output": "In a Transformer encoder block, input embeddings pass into a Multi-Head Self-Attention sub-layer whose output is combined with the original input via a residual skip connection and normalized via LayerNorm. That normalized representation then enters a position-wise Feed-Forward Network (FFN), followed by a second residual connection and LayerNorm, allowing gradients to flow directly across stacked layers while alternating global token interaction with per-token non-linear transformation.",
-      "context": [
-        "Transformer encoder layers alternate Multi-Head Attention and position-wise Feed-Forward Networks, each wrapped with residual connections and Layer Normalization."
-      ],
-      "additional_metadata": {
-        "category": "multi_hop_entity_relations",
-        "difficulty": "hard",
-        "target_modes": ["hybrid_rag", "lightrag"]
-      }
+      "id": "sh_04",
+      "input": "What distinguishes classification from regression in supervised learning?",
+      "expected_output": "Classification assigns a discrete label from a finite set of classes to an unlabeled example, while regression predicts a continuous real-valued number for an unlabeled example.",
+      "additional_metadata": { "category": "single_hop" }
     },
     {
-      "id": "eval_005",
-      "input": "Under what conditions does high-temperature softmax sampling degenerate into uniform random token selection, and how does nucleus (top-p) sampling prevent tail-token hallucinations?",
-      "expected_output": "As temperature T approaches infinity, dividing logits z_i by T compresses differences between token probabilities so softmax(z_i / T) approaches a uniform distribution (1 / V) over the entire vocabulary, sampling low-probability nonsense tokens. Nucleus (top-p) sampling truncates the distribution dynamically to the smallest set of top-ranked tokens whose cumulative probability mass exceeds threshold p, eliminating the unreliable long tail while adapting candidate pool size to model confidence.",
-      "context": [
-        "High temperature flattens the softmax probability distribution toward uniformity; top-p sampling restricts sampling to the smallest token subset summing to probability p."
-      ],
-      "additional_metadata": {
-        "category": "conceptual_synthesis",
-        "difficulty": "medium",
-        "target_modes": ["traditional_rag", "hybrid_rag", "corrective_rag", "lightrag"]
-      }
+      "id": "sh_05",
+      "input": "What is the kernel trick in Support Vector Machines (SVMs)?",
+      "expected_output": "The kernel trick allows SVMs to implicitly map input feature vectors into a higher-dimensional space and compute inner products there using a kernel function without explicitly computing the high-dimensional coordinates.",
+      "additional_metadata": { "category": "single_hop" }
+    },
+    {
+      "id": "kw_01",
+      "input": "What is the mathematical difference between L1 and L2 regularization penalties, and how does L1 induce sparsity?",
+      "expected_output": "L1 regularization adds the sum of absolute values of weights (the L1 norm) to the objective function, whereas L2 regularization adds the sum of squared weights (the L2 norm). L1 induces sparsity by driving many parameter weights to exactly zero, effectively performing feature selection.",
+      "additional_metadata": { "category": "formula_keyword" }
+    },
+    {
+      "id": "kw_02",
+      "input": "What is hinge loss and in which learning algorithm is it used?",
+      "expected_output": "Hinge loss is the loss function max(0, 1 - y_i * (w * x_i - b)) used in Support Vector Machines (SVMs) to penalize examples that violate or fall on the wrong side of the decision margin.",
+      "additional_metadata": { "category": "formula_keyword" }
+    },
+    {
+      "id": "kw_03",
+      "input": "How is precision and recall defined for binary classification evaluation?",
+      "expected_output": "Precision is the ratio of true positives to all predicted positives (TP / (TP + FP)), while recall is the ratio of true positives to all actual positives in the dataset (TP / (TP + FN)).",
+      "additional_metadata": { "category": "formula_keyword" }
+    },
+    {
+      "id": "kw_04",
+      "input": "What is empirical risk and how does it relate to the loss function in linear regression?",
+      "expected_output": "Empirical risk (the cost function) is the average of the loss function penalties across all examples in the training dataset. In linear regression, squared error loss is averaged over all training examples to compute empirical risk.",
+      "additional_metadata": { "category": "formula_keyword" }
+    },
+    {
+      "id": "oos_01",
+      "input": "What is the default batch size and learning rate schedule used in DeepSeek-V4 pretraining?",
+      "expected_output": "The provided textbook passages do not contain information about DeepSeek-V4 pretraining hyperparameters.",
+      "additional_metadata": { "category": "out_of_scope" }
+    },
+    {
+      "id": "oos_02",
+      "input": "Which Python web framework does Andriy Burkov recommend for deploying FastAPI microservices on Kubernetes?",
+      "expected_output": "The provided passages from The Hundred-Page Machine Learning Book do not discuss FastAPI or Kubernetes deployment recommendations.",
+      "additional_metadata": { "category": "out_of_scope" }
+    },
+    {
+      "id": "oos_03",
+      "input": "What was the exact stock price of NVIDIA on the day the first edition of this book was published?",
+      "expected_output": "The provided textbook passages do not mention NVIDIA's stock price.",
+      "additional_metadata": { "category": "out_of_scope" }
+    },
+    {
+      "id": "mh_01",
+      "input": "How do overfitting, the bias-variance tradeoff, and regularization interact when increasing model complexity?",
+      "expected_output": "Increasing model complexity reduces bias by fitting training data more closely, but increases variance and the risk of overfitting on unseen data. Regularization counteracts overfitting by adding a complexity penalty on model weights to trade a small increase in bias for a larger reduction in variance.",
+      "additional_metadata": { "category": "multi_hop" }
+    },
+    {
+      "id": "mh_02",
+      "input": "Compare how bagging (such as Random Forests) and gradient boosting combine weak learners to reduce prediction error.",
+      "expected_output": "Bagging trains multiple independent models in parallel on bootstrap samples of the training data and averages their predictions to reduce variance, whereas gradient boosting trains weak learners sequentially so each new tree fits the residual errors of the combined previous models to reduce bias.",
+      "additional_metadata": { "category": "multi_hop" }
+    },
+    {
+      "id": "mh_03",
+      "input": "How do gradient descent, mini-batch stochastic gradient descent, and learning rate selection work together during model optimization?",
+      "expected_output": "Gradient descent updates model parameters iteratively in the opposite direction of the cost function gradient scaled by the learning rate. Mini-batch SGD estimates that gradient on small random subsets of training data for faster updates, while the learning rate controls step size so convergence is neither too slow nor unstable.",
+      "additional_metadata": { "category": "multi_hop" }
     }
   ]
 }
